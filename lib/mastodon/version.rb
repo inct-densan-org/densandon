@@ -33,7 +33,7 @@ module Mastodon
     end
 
     def repository
-      'tootsuite/mastodon'
+      'inct-densan-org/densandon'
     end
 
     def source_base_url
