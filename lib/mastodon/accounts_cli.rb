@@ -7,6 +7,9 @@ require_relative 'cli_helper'
 
 module Mastodon
   class AccountsCLI < Thor
+    def self.exit_on_failure?
+      true
+    end
     option :all, type: :boolean
     desc 'rotate [USERNAME]', 'Generate and broadcast new keys'
     long_desc <<-LONG_DESC
@@ -223,7 +226,7 @@ module Mastodon
       dry_run           = options[:dry_run] ? ' (DRY RUN)' : ''
 
       Account.remote.where(protocol: :activitypub).partitioned.find_each do |account|
-        next if account.updated_at >= skip_threshold || account.last_webfingered_at >= skip_threshold
+        next if account.updated_at >= skip_threshold || (account.last_webfingered_at.present? && account.last_webfingered_at >= skip_threshold)
 
         unless dead_servers.include?(account.domain)
           begin
