@@ -17,8 +17,7 @@ class FetchLinkCardService < BaseService
 
     return if @url.nil? || @status.preview_cards.any?
 
-    @mentions = status.mentions
-    @url      = @url.to_s
+    @url = @url.to_s
 
     RedisLock.acquire(lock_options) do |lock|
       if lock.acquired?
@@ -63,6 +62,7 @@ class FetchLinkCardService < BaseService
 
   def attach_card
     @status.preview_cards << @card
+    Rails.cache.delete(@status)
   end
 
   def parse_urls
@@ -83,9 +83,8 @@ class FetchLinkCardService < BaseService
   end
 
   def mention_link?(a)
-    return false if @mentions.nil?
-    @mentions.any? do |mention|
-      a['href'] == TagManager.instance.url_for(mention.target)
+    @status.mentions.any? do |mention|
+      a['href'] == TagManager.instance.url_for(mention.account)
     end
   end
 
