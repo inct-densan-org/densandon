@@ -1,5 +1,5 @@
-FROM node:8.12.0-alpine as node
-FROM ruby:2.4.5-alpine3.8
+FROM node:8.15-alpine as node
+FROM ruby:2.6-alpine3.9
 
 LABEL maintainer="https://github.com/tootsuite/mastodon" \
       description="Your self-hosted, globally interconnected microblogging community"
@@ -24,17 +24,18 @@ COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=node /usr/local/bin/npm /usr/local/bin/npm
 COPY --from=node /opt/yarn-* /opt/yarn
 
-RUN apk -U upgrade \
- && apk add -t build-dependencies \
+RUN apk add --no-cache -t build-dependencies \
     build-base \
     icu-dev \
     libidn-dev \
-    libressl \
+    openssl \
     libtool \
+    libxml2-dev \
+    libxslt-dev \
     postgresql-dev \
     protobuf-dev \
     python \
- && apk add \
+ && apk add --no-cache \
     ca-certificates \
     ffmpeg \
     file \
@@ -43,6 +44,8 @@ RUN apk -U upgrade \
     imagemagick \
     libidn \
     libpq \
+    libxml2 \
+    libxslt \
     protobuf \
     tini \
     tzdata \
@@ -60,11 +63,11 @@ RUN apk -U upgrade \
  && make install \
  && libtool --finish /usr/local/lib \
  && cd /mastodon \
- && rm -rf /tmp/* /var/cache/apk/*
+ && rm -rf /tmp/*
 
 COPY Gemfile Gemfile.lock package.json yarn.lock .yarnclean /mastodon/
 
-RUN bundle config build.nokogiri --with-iconv-lib=/usr/local/lib --with-iconv-include=/usr/local/include \
+RUN bundle config build.nokogiri --use-system-libraries --with-iconv-lib=/usr/local/lib --with-iconv-include=/usr/local/include \
  && bundle install -j$(getconf _NPROCESSORS_ONLN) --deployment --without test development \
  && yarn install --pure-lockfile --ignore-engines \
  && yarn cache clean
