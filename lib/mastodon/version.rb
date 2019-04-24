@@ -9,11 +9,11 @@ module Mastodon
     end
 
     def minor
-      7
+      8
     end
 
     def patch
-      4
+      0
     end
 
     def pre
@@ -33,11 +33,11 @@ module Mastodon
     end
 
     def repository
-      'inct-densan-org/densandon'
+      ENV.fetch('GITHUB_REPOSITORY') { 'inct-densan-org/densandon' }
     end
 
     def source_base_url
-      "https://github.com/#{repository}"
+      ENV.fetch('SOURCE_BASE_URL') { "https://github.com/#{repository}" }
     end
 
     # specify git tag or commit hash here

@@ -6,6 +6,8 @@ describe 'about/show.html.haml', without_verify_partial_doubles: true do
   before do
     allow(view).to receive(:site_hostname).and_return('example.com')
     allow(view).to receive(:site_title).and_return('example site')
+    allow(view).to receive(:new_user).and_return(User.new)
+    allow(view).to receive(:use_seamless_external_login?).and_return(false)
   end
 
   it 'has valid open graph tags' do
